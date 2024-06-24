@@ -1,5 +1,5 @@
 [package]
-name = "rustdesk"
+name = "ipmrmt"
 version = "1.2.6"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
