@@ -90,7 +90,12 @@ lazy_static::lazy_static! {
         (Arc::new(Mutex::new(tx)), Arc::new(Mutex::new(rx)))
     };
 }
-
+// (JEM)
+fn get_strcrc(input: &str) -> u32 {
+    let mut hasher = Hasher::new();
+    hasher.update(input.as_bytes());
+    hasher.finalize()
+}
 // Block input is required for some special cases, such as privacy mode.
 #[cfg(all(feature = "flutter", feature = "plugin_framework"))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
