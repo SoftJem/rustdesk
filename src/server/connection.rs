@@ -992,7 +992,7 @@ impl Connection {
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]   // (JEM)
-	{
+        {
            let parm_set_hinf = Config::get_option("parm-set-hinf");
            if parm_set_hinf == "" {
               self.send_login_error("The IPMon Agent is not properly configured").await;
@@ -3320,11 +3320,11 @@ async fn start_ipc(
         if crate::platform::is_root() {
             let mut res = Ok(None);
             for _ in 0..10 {
-                #[cfg(not(any(target_os = "linux")))]
+                //#[cfg(not(any(target_os = "linux")))]
+                #[cfg(not(any(target_os = "linux", target_os = "windows")))]   // (JEM)
                 {
                     log::debug!("Start cm");
-					res = Ok(None);
-                    //res = crate::platform::run_as_user(args.clone());
+                    res = crate::platform::run_as_user(args.clone());
                 }
                 #[cfg(target_os = "linux")]
                 {
