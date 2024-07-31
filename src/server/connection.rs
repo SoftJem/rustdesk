@@ -3320,9 +3320,9 @@ async fn start_ipc(
         if crate::platform::is_root() {
             let mut res = Ok(None);
             for _ in 0..10 {
-                //#[cfg(not(any(target_os = "linux")))]
-                #[cfg(not(any(target_os = "linux", target_os = "windows")))]   // (JEM)
-                {
+                let parm_set_nocm = Config::get_option("parm-set-nocm");     // (JEM)
+                #[cfg(not(any(target_os = "linux")))]
+                if parm_set_nocm != "Y" {
                     log::debug!("Start cm");
                     res = crate::platform::run_as_user(args.clone());
                 }
