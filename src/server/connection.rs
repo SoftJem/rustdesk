@@ -3323,7 +3323,8 @@ async fn start_ipc(
                 #[cfg(not(any(target_os = "linux")))]
                 {
                     log::debug!("Start cm");
-                    res = crate::platform::run_as_user(args.clone());
+					res = Ok(true); //(JEM)
+                    //res = crate::platform::run_as_user(args.clone());
                 }
                 #[cfg(target_os = "linux")]
                 {
