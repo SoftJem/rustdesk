@@ -51,7 +51,7 @@ export default class Connection {
       this.msgbox(
         "error",
         "Connection Error",
-        e.type == "close" ? "Reset by the peer" : String(e)
+        e.type == "close" ? "#3 Reset by the peer" : String(e)
       );
     }
   }

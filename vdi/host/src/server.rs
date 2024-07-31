@@ -128,7 +128,7 @@ impl Server {
                             }
                         }
                     } else {
-                        bail!("Reset by the peer");
+                        bail!("#1 Reset by the peer");
                     }
                 }
             }
