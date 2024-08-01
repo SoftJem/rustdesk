@@ -3,8 +3,6 @@ use super::{input_service::*, *};
 use crate::clipboard::{update_clipboard, ClipboardSide};
 #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
 use crate::clipboard_file::*;
-use crc32fast::Hasher;       // (JEM)
-use hostname::get;           // (JEM)
 #[cfg(target_os = "android")]
 use crate::keyboard::client::map_key_to_control_key;
 #[cfg(target_os = "linux")]
@@ -90,12 +88,7 @@ lazy_static::lazy_static! {
         (Arc::new(Mutex::new(tx)), Arc::new(Mutex::new(rx)))
     };
 }
-// (JEM)
-fn get_strcrc(input: &str) -> u32 {
-    let mut hasher = Hasher::new();
-    hasher.update(input.as_bytes());
-    hasher.finalize()
-}
+
 // Block input is required for some special cases, such as privacy mode.
 #[cfg(all(feature = "flutter", feature = "plugin_framework"))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -509,10 +502,12 @@ impl Connection {
                             } else if &name == "audio" {
                                 conn.audio = enabled;
                                 conn.send_permission(Permission::Audio, enabled).await;
-                                if let Some(s) = conn.server.upgrade() {
-                                    s.write().unwrap().subscribe(
-                                        super::audio_service::NAME,
-                                        conn.inner.clone(), conn.audio_enabled());
+                                if conn.authorized {
+                                    if let Some(s) = conn.server.upgrade() {
+                                        s.write().unwrap().subscribe(
+                                            super::audio_service::NAME,
+                                            conn.inner.clone(), conn.audio_enabled());
+                                    }
                                 }
                             } else if &name == "file" {
                                 conn.file = enabled;
@@ -991,25 +986,6 @@ impl Connection {
                 return false;
             }
         }
-        #[cfg(not(any(target_os = "android", target_os = "ios")))]   // (JEM)
-        {
-           let parm_set_hinf = Config::get_option("parm-set-hinf");
-           if parm_set_hinf == "" {
-              self.send_login_error("The IPMon Agent is not properly configured").await;
-              return false;
-	  	   }
-           if parm_set_hinf != "10E686D" {
-              let host_str: String = get().unwrap_or_else(|_| "Unknown".into()).into_string().unwrap_or_else(|_| "Errror".into());
-              let agt = "agt";
-              let mut strcrc = agt.to_string();
-              strcrc.push_str(&host_str.to_uppercase());
-              let crc_value = get_strcrc(&strcrc);
-              if crc_value.to_string() != parm_set_hinf {
-                 self.send_login_error("Inconsistency in IPMon Agent configuration").await;
-                 return false;
-              }
-	    }
-	}
         self.ip = addr.ip().to_string();
         let mut msg_out = Message::new();
         msg_out.set_hash(self.hash.clone());
@@ -3320,9 +3296,8 @@ async fn start_ipc(
         if crate::platform::is_root() {
             let mut res = Ok(None);
             for _ in 0..10 {
-                let parm_set_nocm = Config::get_option("parm-set-nocm");     // (JEM)
                 #[cfg(not(any(target_os = "linux")))]
-                if parm_set_nocm != "Y" {
+                {
                     log::debug!("Start cm");
                     res = crate::platform::run_as_user(args.clone());
                 }
