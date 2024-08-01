@@ -200,8 +200,8 @@ impl<T: InvokeUiSession> Remote<T> {
                                     log::info!("Restart remote device");
                                     self.handler.msgbox("restarting", "Restarting remote device", "remote_restarting_tip", "");
                                 } else {
-                                    log::info!("#4 Reset by the peer");
-                                    self.handler.msgbox("error", "Connection Error", "#5 Reset by the peer", "");
+                                    log::info!("Reset by the peer");
+                                    self.handler.msgbox("error", "Connection Error", "Reset by the peer", ""); // (JEM)
                                 }
                                 break;
                             }

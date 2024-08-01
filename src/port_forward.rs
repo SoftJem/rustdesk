@@ -164,7 +164,7 @@ async fn connect_and_login(
                     bail!("Connection closed: {}", err);
                 }
                 _ => {
-                    bail!("#2 Reset by the peer");
+                    bail!("Reset by the peer");
                 }
             },
             d = ui_receiver.recv() => {

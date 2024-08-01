@@ -609,7 +609,7 @@ impl Connection {
                             }
                         }
                     } else {
-                        //conn.on_close("Reset by the peer", true).await; // (JEM)
+                        conn.on_close("Reset by the peer", true).await;
                         break;
                     }
                 },

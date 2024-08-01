@@ -606,7 +606,7 @@ impl Client {
                 }
             }
             None => {
-                bail!("#6 Reset by the peer");
+                bail!("Reset by the peer");
             }
         }
         Ok(option_pk)
