@@ -10,7 +10,14 @@ def listar_arquivos():
         for file in caminho_pasta.rglob('*'):
             if file.is_file():
                 encontrou_arquivos = True
-                print(file)
+                print(f"Arquivo encontrado: {file}")
+
+                # Abrindo o arquivo e procurando pela palavra-chave
+                with file.open('r', encoding='utf-8', errors='ignore') as f:
+                    conteudo = f.read()
+                    if "RustdeskMultiWindow" in conteudo:
+                        print(f"'{file.name}' contém 'RustdeskMultiWindow'.")
+
         if not encontrou_arquivos:
             print("Nenhum arquivo encontrado.")
     else:
