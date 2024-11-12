@@ -410,7 +410,7 @@ jobs:
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
-          name: bridge-artifact-macos
+          name: bridge-artifact
           path: ./
 
       - name: Build rustdesk
@@ -540,7 +540,7 @@ jobs:
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
-          name: bridge-artifact-macos
+          name: bridge-artifact
           path: ./
 
       - name: Build rustdesk lib
@@ -595,7 +595,7 @@ jobs:
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
-          name: bridge-artifact-macos
+          name: bridge-artifact
           path: ./
 
       - name: Build rustdesk lib
@@ -730,7 +730,7 @@ jobs:
       - name: Restore bridge files
         uses: actions/download-artifact@master
         with:
-          name: bridge-artifact-macos
+          name: bridge-artifact
           path: ./
 
       - name: Setup vcpkg with Github Actions binary cache
