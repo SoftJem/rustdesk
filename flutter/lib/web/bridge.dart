@@ -1848,9 +1848,5 @@ class IpmrmtImpl {
     throw UnimplementedError("sessionGetConnToken");
   }
 
-  String getOsDistroInfo({dynamic hint}) {
-    return '';
-  }
-
   void dispose() {}
 }
