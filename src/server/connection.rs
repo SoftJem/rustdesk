@@ -470,11 +470,6 @@ impl Connection {
                             conn.on_close("connection manager", true).await;
                             break;
                         }
-                        #[cfg(target_os = "android")]
-                        ipc::Data::InputControl(v) => {
-                            conn.keyboard = v;
-                            conn.send_permission(Permission::Keyboard, v).await;
-                        }
                         ipc::Data::CmErr(e) => {
                             if e != "expected" {
                                 // cm closed before connection
@@ -500,6 +495,9 @@ impl Connection {
                                 conn.send_permission(Permission::Keyboard, enabled).await;
                                 if let Some(s) = conn.server.upgrade() {
                                     s.write().unwrap().subscribe(
+                                        super::clipboard_service::NAME,
+                                        conn.inner.clone(), conn.can_sub_clipboard_service());
+                                    s.write().unwrap().subscribe(
                                         NAME_CURSOR,
                                         conn.inner.clone(), enabled || conn.show_remote_cursor);
                                 }
@@ -509,7 +507,7 @@ impl Connection {
                                 if let Some(s) = conn.server.upgrade() {
                                     s.write().unwrap().subscribe(
                                         super::clipboard_service::NAME,
-                                        conn.inner.clone(), conn.clipboard_enabled() && conn.peer_keyboard_enabled());
+                                        conn.inner.clone(), conn.can_sub_clipboard_service());
                                 }
                             } else if &name == "audio" {
                                 conn.audio = enabled;
@@ -1398,16 +1396,7 @@ impl Connection {
                 if !self.follow_remote_window {
                     noperms.push(NAME_WINDOW_FOCUS);
                 }
-                // Do not consider the clipboard and keyboard permissions on Android.
-                // Because syncing the clipboard on Android is manually triggered by the user in the floating ball.
-                #[cfg(target_os = "android")]
-                let keyboard_clip_noperm = self.disable_keyboard || self.disable_clipboard;
-                #[cfg(not(target_os = "android"))]
-                let keyboard_clip_noperm =
-                    !self.clipboard_enabled() || !self.peer_keyboard_enabled();
-                if keyboard_clip_noperm
-                    || crate::get_builtin_option(keys::OPTION_ONE_WAY_CLIPBOARD_REDIRECTION) == "Y"
-                {
+                if !self.can_sub_clipboard_service() {
                     noperms.push(super::clipboard_service::NAME);
                 }
                 if !self.audio_enabled() {
@@ -1477,6 +1466,13 @@ impl Connection {
 
     fn clipboard_enabled(&self) -> bool {
         self.clipboard && !self.disable_clipboard
+    }
+
+    #[inline]
+    fn can_sub_clipboard_service(&self) -> bool {
+        self.clipboard_enabled()
+            && self.peer_keyboard_enabled()
+            && crate::get_builtin_option(keys::OPTION_ONE_WAY_CLIPBOARD_REDIRECTION) != "Y"
     }
 
     fn audio_enabled(&self) -> bool {
@@ -2956,7 +2952,7 @@ impl Connection {
                     s.write().unwrap().subscribe(
                         super::clipboard_service::NAME,
                         self.inner.clone(),
-                        self.clipboard_enabled() && self.peer_keyboard_enabled(),
+                        self.can_sub_clipboard_service(),
                     );
                 }
             }
@@ -2968,7 +2964,7 @@ impl Connection {
                     s.write().unwrap().subscribe(
                         super::clipboard_service::NAME,
                         self.inner.clone(),
-                        self.clipboard_enabled() && self.peer_keyboard_enabled(),
+                        self.can_sub_clipboard_service(),
                     );
                     s.write().unwrap().subscribe(
                         NAME_CURSOR,
