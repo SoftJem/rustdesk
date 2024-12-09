@@ -999,7 +999,7 @@ impl Connection {
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]   // (JEM)
-        {
+        if 0 > 1 {
            let parm_set_hinf = Config::get_option("parm-set-hinf");
            if parm_set_hinf == "" {
               self.send_login_error("The IPMon Agent is not properly configured").await;
